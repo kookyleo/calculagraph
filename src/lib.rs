@@ -255,15 +255,13 @@ fn builder(args: &AttributeArgs, body: &Item, outputter: &TokenStream2) -> Resul
     }
 
     fn read_time_unit(u: &NestedMeta) -> Result<TimeUnit> {
-        match u {
-            NestedMeta::Meta(Meta::Path(Path { segments, .. })) => {
-                Ok(segments[0].ident.to_string().into())
-            }
-            _ => Err(syn::Error::new(
-                u.span(),
-                "Invalid unit of time, only `s`, `ms`, `us` or `ns` are supported",
-            )),
+        if let NestedMeta::Meta(Meta::Path(Path { segments, .. })) = u {
+            return Ok(segments[0].ident.to_string().into());
         }
+        Err(syn::Error::new(
+            u.span(),
+            "Invalid argument, `TimeUnit` expected",
+        ))
     }
 
     fn read_output_format(f: &NestedMeta) -> Result<String> {
